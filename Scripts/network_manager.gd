@@ -6,16 +6,13 @@ const MAX_CLIENTS : int = 4
 @onready var ip_input = $NetworkUI/VBoxContainer/IPInput
 @onready var port_input = $NetworkUI/VBoxContainer/PortInput
 
+var player_scene = preload("res://Scenes/Player.tscn")
+@onready var spawned_nodes = $SpawnedNodes
+
 var local_username : String
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+var spawn_x_range : float = 350
+var spawn_y_range : float = 200
 
 
 
@@ -26,6 +23,7 @@ func start_host():
 	
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.peer_disconnected.connect(_on_player_disconnected)
+	_on_player_connected(multiplayer.get_unique_id())
 	
 	network_ui.visible = false
 	
@@ -43,9 +41,20 @@ func start_client():
 
 func _on_player_connected (id : int):
 	print("Player %s joined the game." % id)
+	
+	var player = player_scene.instantiate()
+	player.position = _get_random_spawn_position()
+	player.name = str(id)
+	player.player_id = id
+	spawned_nodes.add_child(player, true)
 
 func _on_player_disconnected (id : int):
 	print("Player %s left the game." % id)
+	
+	if not spawned_nodes.has_node(str(id)):
+		return
+	
+	spawned_nodes.get_node(str(id)).queue_free()
 
 
 func _connected_the_server():
@@ -58,6 +67,10 @@ func _connection_failed():
 func _server_disconnected():
 	print("Server Disconnected.")
 	network_ui.visible = true
+
+func _get_random_spawn_position () -> Vector2:
+	return Vector2(randf_range(-spawn_x_range, spawn_x_range), randf_range(-spawn_y_range, spawn_y_range))
+	
 
 func _on_username_input_text_changed(new_text: String) -> void:
 	local_username = new_text

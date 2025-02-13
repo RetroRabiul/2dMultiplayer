@@ -659,6 +659,12 @@ placeholder_text = "Port...."
 layout_mode = 2
 placeholder_text = "Type a Username..."
 
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
+_spawnable_scenes = PackedStringArray("res://Scenes/Player.tscn")
+spawn_path = NodePath("../SpawnedNodes")
+
+[node name="SpawnedNodes" type="Node2D" parent="Network"]
+
 [connection signal="pressed" from="Network/NetworkUI/VBoxContainer/StartServerButton" to="Network" method="start_host"]
 [connection signal="pressed" from="Network/NetworkUI/VBoxContainer/JoinServerButton" to="Network" method="start_client"]
 [connection signal="text_changed" from="Network/NetworkUI/VBoxContainer/UsernameInput" to="Network" method="_on_username_input_text_changed"]
